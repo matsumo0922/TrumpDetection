@@ -64,7 +64,7 @@ fun main(args: Array<String>) {
 
             val outputFile = File(outputDir, file.name)
 
-            if (trumpDetection(file, outputFile, params, false)) {
+            if (trumpDetection(file, outputFile, params, isDebugMode)) {
                 println("FINISH: Output success. [${outputFile.absoluteFile}]")
             } else {
                 failedImages.add(file)
