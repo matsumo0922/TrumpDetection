@@ -161,12 +161,13 @@ fun findSquares(inputMat: Mat, contours: List<MatOfPoint>): Pair<Mat, MatOfPoint
     for(trumpInfo in trumpInfos) {
         val (point, areaSize, index) = trumpInfo
         val curve = MatOfPoint2f(*point.toArray())
+        val inputSize = Pair(inputMat.size().width, inputMat.size().height)
         val approx = MatOfPoint2f()
 
         Imgproc.approxPolyDP(curve, approx, 0.01 * Imgproc.arcLength(curve, true), true)
         Imgproc.drawContours(inputMat, contours, index, Scalar(255.0, 0.0, 0.0, 255.0), 2)
 
-        if(approx.toArray().size == 4 && areaSize >= 1000 && compareSize(approx.sizeOfSide(), Pair(inputMat.size().width, inputMat.size().height)) <= 0.9) {
+        if(approx.toArray().size == 4 && areaSize >= 1000 && compareSize(approx.sizeOfSide(), inputSize) <= 0.9 && !compareLocate(approx.sizeOfSide(), inputSize)) {
             Imgproc.drawContours(inputMat, contours, index, Scalar(0.0, 255.0, 0.0, 255.0), 2)
             return (inputMat to approx)
         }
@@ -215,6 +216,15 @@ fun compareSize(size1: Pair<Double, Double>, size2: Pair<Double, Double>): Doubl
     val area1 = size1.first * size1.second
     val area2 = size2.first * size2.second
     return min(area1, area2) / max(area1, area2)
+}
+
+fun compareLocate(size1: Pair<Double, Double>, size2: Pair<Double, Double>): Boolean {
+    val compare1 = abs((size1.first - size2.first) / size2.first)
+    val compare2 = abs((size1.first - size2.second) / size2.second)
+    val compare3 = abs((size1.second - size2.first) /size2.first)
+    val compare4 = abs((size1.second - size2.second) / size2.second)
+
+    return (compare1 < 0.01) || (compare2 < 0.01) || (compare3 < 0.01) || (compare4 < 0.01)
 }
 
 fun MatOfPoint2f.sizeOfSide(): Pair<Double, Double> {
